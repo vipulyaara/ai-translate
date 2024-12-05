@@ -1,6 +1,6 @@
 # Privacy Policy for Quick Translate & Explain
 
-*Last updated: [Current Date]*
+*Last updated: 06 December 2024*
 
 ## Overview
 Quick Translate & Explain is committed to protecting your privacy. This privacy policy explains how our browser extension handles your data.
