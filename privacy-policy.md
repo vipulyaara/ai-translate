@@ -34,4 +34,4 @@ Our extension requires certain permissions to function:
 We may update this privacy policy from time to time. Any changes will be posted on this page.
 
 ## Contact
-If you have any questions about this privacy policy, please create an issue in our GitHub repository or contact us at [Your Contact Email]. 
+If you have any questions about this privacy policy, please create an issue in our GitHub repository or contact us at vipulyaara@gmail.com. 
