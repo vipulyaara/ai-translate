@@ -16,12 +16,12 @@ const sendMessageWithRetry = async (tabId, message, maxAttempts = 3) => {
 };
 
 const createContextMenu = () => {
-  chrome.contextMenus.removeAll(() => {
-    chrome.contextMenus.create({
-      id: 'translate',
-      title: 'Translate with AI',
-      contexts: ['selection']
-    });
+  chrome.contextMenus.removeAll();
+
+  chrome.contextMenus.create({
+    id: "translateWithAI",
+    title: "Translate with AI",
+    contexts: ["selection"]
   });
 };
 
@@ -229,18 +229,36 @@ const languageNames = {
   km: 'Khmer'
 };
 
+// Add this function to inject content script
+async function injectContentScript(tabId) {
+  try {
+    await chrome.scripting.executeScript({
+      target: { tabId },
+      files: ['content.js']
+    });
+  } catch (error) {
+    console.error('Failed to inject content script:', error);
+    throw error;
+  }
+}
+
 // Handle context menu clicks
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
-  if (info.menuItemId === 'translate') {
+  if (info.menuItemId === 'translateWithAI') {
     try {
       if (!tab.id) {
         throw new Error('Cannot access this page. Try a different page.');
       }
 
-      // Get saved target language
+      // Inject content script first
+      await injectContentScript(tab.id);
+      
+      // Add a small delay to ensure content script is loaded
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Rest of your existing code...
       const { targetLanguage = 'en' } = await chrome.storage.sync.get('targetLanguage');
       
-      // Get page context
       const [{ result: context }] = await chrome.scripting.executeScript({
         target: { tabId: tab.id },
         func: () => ({
@@ -252,28 +270,12 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 
       const result = await handleTranslate(info.selectionText, languageNames[targetLanguage], context);
       
-      try {
-        await sendMessageWithRetry(tab.id, {
-          action: 'showTranslation',
-          text: info.selectionText,
-          targetLanguage,
-          ...result
-        });
-      } catch (error) {
-        console.error('Failed to send message to content script:', error);
-        // Try to show error using alert as fallback
-        try {
-          await chrome.scripting.executeScript({
-            target: { tabId: tab.id },
-            function: (errorMessage) => {
-              alert(`Translation Error: ${errorMessage}`);
-            },
-            args: ['Failed to display translation. Please refresh the page and try again.']
-          });
-        } catch (scriptError) {
-          console.error('Failed to show error message:', scriptError);
-        }
-      }
+      await sendMessageWithRetry(tab.id, {
+        action: 'showTranslation',
+        text: info.selectionText,
+        targetLanguage,
+        ...result
+      });
     } catch (error) {
       console.error('Error in translation process:', error);
       try {
@@ -311,23 +313,4 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 // Create context menu when extension is installed or updated
-chrome.runtime.onInstalled.addListener(createContextMenu);
-
-// Create context menu on installation
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.contextMenus.create({
-    id: "translateSelection",
-    title: "Translate Selection",
-    contexts: ["selection"]
-  });
-});
-
-// Handle context menu clicks
-chrome.contextMenus.onClicked.addListener((info, tab) => {
-  if (info.menuItemId === "translateSelection") {
-    chrome.tabs.sendMessage(tab.id, {
-      action: "translate",
-      text: info.selectionText
-    });
-  }
-}); 
+chrome.runtime.onInstalled.addListener(createContextMenu); 

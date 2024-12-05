@@ -28,7 +28,18 @@ Our extension requires certain permissions to function:
 - **contextMenus**: To add right-click menu translation option
 - **storage**: To save your language preferences locally
 - **activeTab**: To access currently selected text
-- **scripting**: To show translation popups
+- **scripting**: Required to:
+  1. Inject the translation UI overlay on the current page
+  2. Safely execute translation functionality in the active tab's context
+  3. Display translation results in a user-friendly popup
+  4. Handle dynamic webpage content without requiring broad host permissions
+
+All script execution:
+- Only occurs on the active tab
+- Only when explicitly triggered by user action (right-click menu)
+- Never runs automatically or in the background
+- Does not persist between sessions
+- Does not collect or transmit any data
 
 ## Updates
 We may update this privacy policy from time to time. Any changes will be posted on this page.

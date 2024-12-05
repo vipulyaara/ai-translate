@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Quick Translate & Explain",
+  "name": "AI Translate & Explain",
   "version": "1.0.0",
-  "description": "Select text to instantly translate it to any language and get helpful explanations. Perfect for reading foreign websites or understanding complex content.",
+  "description": "Get translation and context-aware explanation from any text on web using OpenAI API key.",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
@@ -17,21 +17,12 @@
     "default_popup": "popup.html"
   },
   "permissions": [
-    "contextMenus",
     "storage",
+    "contextMenus",
     "activeTab",
     "scripting"
   ],
-  "host_permissions": [
-    "<all_urls>"
-  ],
   "background": {
     "service_worker": "background.js"
-  },
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"]
-    }
-  ]
+  }
 } 
